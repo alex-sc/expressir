@@ -390,13 +390,22 @@ module Expressir
       # @raise [SchemaParseFailure] if the schema file fails to parse
       def self.from_file(file, skip_references: nil, include_source: nil, root_path: nil) # rubocop:disable Metrics/AbcSize
         Expressir::Benchmark.measure_file(file) do
+          puts "Parsing #{file}"
           source = File.read file
+          source_cache_key = Digest::SHA256.hexdigest(source)
 
           # remove root path from file path
           schema_file = root_path ? Pathname.new(file.to_s).relative_path_from(root_path).to_s : file.to_s
 
           begin
-            ast = Parser.new.parse source
+            @@source_cache_static ||= {}
+            ast = @@source_cache_static[source_cache_key]
+            unless ast
+              ast = Parser.new.parse source unless ast
+              @@source_cache_static[source_cache_key] = ast
+            else
+              puts "!!!!!!!!! Cache hit #{source_cache_key}"
+            end
           rescue Parslet::ParseFailed => e
             # Instead of just printing, raise a proper error with file context
             raise Error::SchemaParseFailure.new(schema_file, e)
