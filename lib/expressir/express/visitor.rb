@@ -135,8 +135,9 @@ module Expressir
                    ctx.values.map { |item| get_source_pos(item) }
                  when SimpleCtx
                    return nil unless ctx.data.respond_to? :offset
+                   offset = ctx.data.offset
 
-                   [[ctx.data.offset, ctx.data.offset + ctx.data.length]]
+                   [[offset, offset + ctx.data.length]]
                  when Array
                    ctx.map { |item| get_source_pos(item) }
                  else
@@ -249,17 +250,25 @@ module Expressir
         end
       end
 
-      def get_remarks(ctx, indent = "")
+      def get_remarks(ctx)
+        result = []
         case ctx
         when Ctx
-          ctx.values.sum([]) { |item| get_remarks(item, "#{indent}  ") }
+          ctx.values.each do |item|
+            result.concat(get_remarks(item))
+          end
+          result
         when Array
-          ctx.sum([]) { |item| get_remarks(item, "#{indent}  ") }
+          ctx.each do |item|
+            result.concat(get_remarks(item))
+          end
+          result
         else
           if %i[tailRemark embeddedRemark].include?(ctx.name)
-            [get_source_pos(ctx)]
+            result.concat(get_source_pos(ctx))
+            result
           else
-            []
+            result
           end
         end
       end
