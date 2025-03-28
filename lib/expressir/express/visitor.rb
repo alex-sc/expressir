@@ -135,7 +135,7 @@ module Expressir
                    ctx.values.map { |item| get_source_pos(item) }
                  when SimpleCtx
                    return nil unless ctx.data.respond_to? :offset
-                   offset = ctx.data.offset
+                   offset = ctx.data.position.charpos_fast
 
                    [[offset, offset + ctx.data.length]]
                  when Array
@@ -2723,8 +2723,8 @@ module Expressir
 end
 
 module Parslet
-  class Source
-    def charpos
+  class Position
+    def charpos_fast
       @string[0, @bytepos].length
     end
   end
