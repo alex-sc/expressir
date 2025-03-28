@@ -29,7 +29,7 @@ module Expressir
     class Visitor
       class Ctx
         attr_reader :name, :data
-        attr_accessor :source_pos
+        attr_accessor :source_pos, :remarks_cache
 
         def initialize(data, name)
           @data = data
@@ -253,13 +253,12 @@ module Expressir
       def get_remarks(ctx)
         case ctx
         when Ctx
-          #r = ctx.values.sum([]) { |item| get_remarks(item) }
-          #puts "1 #{r.inspect}" if r.length > 0
+          ctx.remarks_cache and return ctx.remarks_cache
           r = []
           ctx.values.each do |item|
             r.concat(get_remarks(item))
           end
-          r
+          ctx.remarks_cache = r
         when Array
           r = []
           ctx.each do |item|
