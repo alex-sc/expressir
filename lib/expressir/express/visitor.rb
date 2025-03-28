@@ -2721,3 +2721,11 @@ module Expressir
     end
   end
 end
+
+module Parslet
+  class Source
+    def charpos
+      @string[0, @bytepos].length
+    end
+  end
+end
