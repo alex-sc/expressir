@@ -251,24 +251,26 @@ module Expressir
       end
 
       def get_remarks(ctx)
-        result = []
         case ctx
         when Ctx
+          #r = ctx.values.sum([]) { |item| get_remarks(item) }
+          #puts "1 #{r.inspect}" if r.length > 0
+          r = []
           ctx.values.each do |item|
-            result.concat(get_remarks(item))
+            r.concat(get_remarks(item))
           end
-          result
+          r
         when Array
+          r = []
           ctx.each do |item|
-            result.concat(get_remarks(item))
+            r.concat(get_remarks(item))
           end
-          result
+          r
         else
           if %i[tailRemark embeddedRemark].include?(ctx.name)
-            result.concat(get_source_pos(ctx))
-            result
+            [get_source_pos(ctx)]
           else
-            result
+            []
           end
         end
       end
